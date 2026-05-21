@@ -1,0 +1,35 @@
+class Solution {
+public:
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        int big = 100000; //constraint
+
+        vector<int> price(n, big); //price ranging vector
+        price[src] = 0; // starting price
+
+        for (int i = 0; i <= k; i++) { //loop for each stop k
+            vector<int> temp = price; //updates the vector of temp for each price for each stop
+
+            for (int j = 0; j < flights.size(); j++) { //loop for each flight
+                int from = flights[j][0]; //starting node
+                int to = flights[j][1]; //ending node
+                int cost = flights[j][2]; //cost from start to end
+
+                if (price[from] != big) { //uses this flight if the starting node is a path to ending node 
+                    int newPrice = price[from] + cost; //updating newprice if reachable
+
+                    if (newPrice < temp[to]) { //finds the new apth and compares to the updated newprice
+                        temp[to] = newPrice;
+                    }
+                }
+            }
+
+            price = temp; //saves price for that given stop
+        }
+
+        if (price[dst] == big) {
+            return -1; //unreachable
+        }
+
+        return price[dst]; //gives total cost
+    }
+};
