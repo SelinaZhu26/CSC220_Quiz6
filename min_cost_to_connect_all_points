@@ -1,0 +1,35 @@
+class Solution(object):
+    def minCostConnectPoints(self, points):
+        
+        n = len(points)  # number of points
+        parent = list(range(n))  # each node starts as its own parent i.e. its own component
+
+        def find(x):
+            if parent[x] != x:  # if x is not its own root
+                parent[x] = find(parent[x])  # path compression, flatten the tree
+            return parent[x]  # return the root
+
+        def union(x, y):
+            px, py = find(x), find(y)  # find the root of each node's component
+            if px == py:        # same root = already in the same component
+                return False    # adding this edge would create a cycle, skip it
+            parent[px] = py     # different roots = safe to merge, point px's root to py
+            return True         # edge was successfully added
+
+        # generate all pairs of points, compute manhattan distance, sort cheapest first
+        edges = sorted(
+            (abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]), i, j)
+            for i in range(n)           # loop over every point
+            for j in range(i + 1, n)   # only look at pairs ahead to avoid duplicates
+        )
+
+        total, count = 0, 0  # total cost and number of edges added so far
+
+        for dist, u, v in edges:  # go through edges cheapest first
+            if union(u, v):       # if safe to add (no cycle)
+                total += dist     # add cost to total
+                count += 1        # increment edge count
+                if count == n - 1:  # n-1 edges = complete spanning tree
+                    break           # done, stop early
+
+        return total  # minimum cost to connect all points
